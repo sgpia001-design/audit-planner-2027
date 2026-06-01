@@ -209,4 +209,598 @@
           <div class="bg-white border border-red-100 p-4 rounded-xl mb-4">
             <div class="flex justify-between mb-3 border-b border-red-50 pb-2">
               <h4 class="text-sm font-bold text-siamgas-red">รายละเอียด Round 1 (ล็อครอบเดียว)</h4>
-              <div class="flex gap-2 items-center"><span class="text-xs font-
+              <div class="flex gap-2 items-center"><span class="text-xs font-medium text-siamgas-dark">Done?</span><input type="checkbox" name="new_r1_check" class="toggle-checkbox h-6 w-10"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div><label class="text-xs font-bold text-siamgas-gray">Start Date</label><input type="date" name="new_r1_start" class="form-input"></div>
+              <div><label class="text-xs font-bold text-siamgas-gray">End Date</label><input type="date" name="new_r1_end" class="form-input"></div>
+              <div><label class="text-xs font-bold text-siamgas-gray">Auditor</label><input type="text" name="new_r1_auditor" class="form-input" placeholder="ชื่อผู้ตรวจ"></div>
+            </div>
+          </div>
+          <div class="text-right"><button type="submit" class="btn-primary">Add Job</button></div>
+        </form>
+      </div>
+  </div>
+
+  <div id="view-timeline" class="hidden">
+      <div class="insta-card p-0 overflow-hidden mb-8" id="timelineContainer">
+        <div class="bg-gray-50 border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+          <h3 class="font-bold text-siamgas-dark"><i class="fa-solid fa-tasks text-siamgas-red mr-2"></i> แผนการตรวจสอบ (Gantt Chart)</h3>
+        </div>
+        <div class="overflow-x-auto p-4" id="timelineTableWrapper">
+          <table class="w-full text-xs text-left border-collapse timeline-table" style="min-width: 900px;" id="mainTimelineTable">
+            <thead>
+              <tr>
+                <th class="px-4 py-2 border w-64 text-left">ระบบงาน (สถานที่)</th>
+                <th class="px-2 py-2 border w-12">ม.ค.</th><th class="px-2 py-2 border w-12">ก.พ.</th><th class="px-2 py-2 border w-12">มี.ค.</th><th class="px-2 py-2 border w-12">เม.ย.</th><th class="px-2 py-2 border w-12">พ.ค.</th><th class="px-2 py-2 border w-12">มิ.ย.</th><th class="px-2 py-2 border w-12">ก.ค.</th><th class="px-2 py-2 border w-12">ส.ค.</th><th class="px-2 py-2 border w-12">ก.ย.</th><th class="px-2 py-2 border w-12">ต.ค.</th><th class="px-2 py-2 border w-12">พ.ย.</th><th class="px-2 py-2 border w-12">ธ.ค.</th>
+              </tr>
+            </thead>
+            <tbody id="timelineBody"></tbody>
+          </table>
+        </div>
+      </div>
+  </div>
+
+  <div id="editModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl w-full max-w-4xl flex flex-col max-h-[90vh] shadow-2xl">
+      <div class="px-8 py-5 border-b border-gray-200 flex justify-between items-center">
+        <h2 class="text-xl font-bold text-siamgas-dark">Update Status</h2>
+        <button type="button" onclick="closeModal()" class="text-2xl text-siamgas-gray hover:text-siamgas-red">&times;</button>
+      </div>
+      <div class="p-8 overflow-y-auto">
+        <form id="updateForm" onsubmit="submitUpdate(event)">
+          <input type="hidden" name="originSheet" id="originSheet">
+          <input type="hidden" name="rowIndex" id="rowIndex">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div id="block_r1" class="border border-red-100 rounded-xl p-5 bg-red-50/30">
+              <div class="flex justify-between mb-4"><h4 class="font-bold text-siamgas-red">Round 1</h4><input type="checkbox" id="r1_check" class="toggle-checkbox"></div>
+              <div class="space-y-3"><input type="date" id="r1_start" class="form-input"><input type="date" id="r1_end" class="form-input"><input type="text" id="r1_auditor" class="form-input" placeholder="Auditor"></div>
+            </div>
+            <div id="block_r2" class="border border-gray-200 rounded-xl p-5 bg-gray-50/30">
+              <div class="flex justify-between mb-4"><h4 class="font-bold text-siamgas-dark">Round 2</h4><input type="checkbox" id="r2_check" class="toggle-checkbox"></div>
+              <div class="space-y-3"><input type="date" id="r2_start" class="form-input"><input type="date" id="r2_end" class="form-input"><input type="text" id="r2_auditor" class="form-input" placeholder="Auditor"></div>
+            </div>
+            <div id="block_r3" class="border border-gray-200 rounded-xl p-5 bg-gray-50/30">
+              <div class="flex justify-between mb-4"><h4 class="font-bold text-siamgas-dark">Round 3</h4><input type="checkbox" id="r3_check" class="toggle-checkbox"></div>
+              <div class="space-y-3"><input type="date" id="r3_start" class="form-input"><input type="date" id="r3_end" class="form-input"><input type="text" id="r3_auditor" class="form-input" placeholder="Auditor"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="px-8 py-5 border-t border-gray-200 text-right">
+        <button type="button" onclick="closeModal()" class="px-4 py-2 text-siamgas-gray mr-2 hover:text-siamgas-dark">Cancel</button>
+        <button onclick="document.getElementById('updateForm').dispatchEvent(new Event('submit'))" class="btn-primary">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // -----------------------------------------------------
+    // [จุดที่ต้องแก้!] ใส่ URL ของ Google Apps Script ที่เราจะได้ในขั้นตอนต่อไป
+    // -----------------------------------------------------
+    const API_URL = "YOUR_WEB_APP_URL"; 
+    // -----------------------------------------------------
+
+    let rawData = [];
+    let barChart, doughnutChart;
+    let currentFilteredData = []; 
+
+    window.onload = fetchData;
+
+    // ลงทะเบียน PWA Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+          console.log('PWA Service Worker Registered!');
+        });
+      });
+    }
+
+    // ==== ฟังก์ชันดึงข้อมูลผ่าน API (แทนแบบเก่า) ====
+    function fetchData() {
+      if(API_URL === "YOUR_WEB_APP_URL") {
+          Swal.fire('รอการเชื่อมต่อ', 'โปรดใส่ URL ของ Web App ในโค้ดก่อนครับ', 'info');
+          return;
+      }
+      
+      Swal.fire({title: 'Loading Data...', confirmButtonColor: '#E31E24', didOpen: () => Swal.showLoading()});
+      
+      fetch(API_URL + "?action=getAllData")
+        .then(response => response.json())
+        .then(result => {
+          if(result.status === "success") {
+              rawData = result.data;
+              initFilters();
+              applyFilters();
+              Swal.close();
+          } else {
+              Swal.fire('Error', 'รูปแบบข้อมูลไม่ถูกต้อง', 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Fetch Error:', error);
+          Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 'error');
+        });
+    }
+
+    // ==== ฟังก์ชันอัปเดตข้อมูลผ่าน API (แทนแบบเก่า) ====
+    function submitUpdate(e) {
+      e.preventDefault();
+      const form = document.getElementById('updateForm');
+      const data = {
+        originSheet: form.originSheet.value,
+        rowIndex: form.rowIndex.value,
+        r1_check: document.getElementById('r1_check').checked.toString(),
+        r1_start: document.getElementById('r1_start').value,
+        r1_end: document.getElementById('r1_end').value,
+        r1_auditor: document.getElementById('r1_auditor').value,
+        r2_check: document.getElementById('r2_check').checked.toString(),
+        r2_start: document.getElementById('r2_start').value,
+        r2_end: document.getElementById('r2_end').value,
+        r2_auditor: document.getElementById('r2_auditor').value,
+        r3_check: document.getElementById('r3_check').checked.toString(),
+        r3_start: document.getElementById('r3_start').value,
+        r3_end: document.getElementById('r3_end').value,
+        r3_auditor: document.getElementById('r3_auditor').value,
+      };
+
+      Swal.fire({title: 'Updating...', confirmButtonColor: '#E31E24', didOpen:()=>Swal.showLoading()});
+      
+      fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'update', data: data })
+      })
+      .then(res => res.json())
+      .then(result => {
+        if(result.status === "success") {
+           Swal.fire({icon:'success', title:'Updated', timer:1000, showConfirmButton:false});
+           closeModal(); fetchData();
+        }
+      })
+      .catch(err => Swal.fire('Error', 'ไม่สามารถอัปเดตข้อมูลได้', 'error'));
+    }
+
+    // ==== ฟังก์ชันเพิ่มงานใหม่ผ่าน API (แทนแบบเก่า) ====
+    function submitNewJob(e) {
+      e.preventDefault();
+      const form = document.getElementById('addJobForm');
+      const formData = Object.fromEntries(new FormData(form));
+      
+      Swal.fire({title: 'Saving...', confirmButtonColor: '#E31E24', didOpen:()=>Swal.showLoading()});
+      
+      fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'add', data: formData })
+      })
+      .then(res => res.json())
+      .then(result => {
+        if(result.status === "success") {
+           Swal.fire({icon:'success', title:'Added', timer:1000, showConfirmButton:false});
+           form.reset(); fetchData();
+        }
+      })
+      .catch(err => Swal.fire('Error', 'ไม่สามารถบันทึกข้อมูลได้', 'error'));
+    }
+
+    // ==== ส่วนการวาด UI และ Filter ต่างๆ (โค้ดเหมือนเดิมครับ) ====
+    function toggleAuditorSummary() {
+      const list = document.getElementById('auditorList');
+      const icon = document.getElementById('auditorToggleIcon');
+      if (list.classList.contains('hidden')) { list.classList.remove('hidden'); icon.classList.replace('fa-chevron-down', 'fa-chevron-up'); } 
+      else { list.classList.add('hidden'); icon.classList.replace('fa-chevron-up', 'fa-chevron-down'); }
+    }
+
+    document.addEventListener('click', function(event) {
+        const dropdowns = document.querySelectorAll('[id$="-dropdown"]');
+        dropdowns.forEach(dropdown => {
+            if (!dropdown.classList.contains('hidden') && !dropdown.parentElement.contains(event.target)) dropdown.classList.add('hidden');
+        });
+    });
+
+    function toggleMultiSelect(dropdownId) {
+        const dropdown = document.getElementById(dropdownId);
+        const isHidden = dropdown.classList.contains('hidden');
+        document.querySelectorAll('[id$="-dropdown"]').forEach(d => d.classList.add('hidden'));
+        if (isHidden) dropdown.classList.remove('hidden');
+    }
+
+    function switchTab(tabName) {
+        document.getElementById('view-dashboard').classList.add('hidden');
+        document.getElementById('view-timeline').classList.add('hidden');
+        document.getElementById('tabBtn-dashboard').classList.remove('active');
+        document.getElementById('tabBtn-timeline').classList.remove('active');
+        document.getElementById(`view-${tabName}`).classList.remove('hidden');
+        document.getElementById(`tabBtn-${tabName}`).classList.add('active');
+    }
+
+    function toInputDate(str) {
+      if(!str || String(str).trim() === '') return "";
+      let s = String(str).trim().split(' ')[0]; 
+      const parts = s.split('/');
+      if(parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+      return s; 
+    }
+
+    function buildMultiSelectHTML(containerId, key, arr) {
+        const container = document.getElementById(containerId);
+        let borderClass = 'border-gray-200';
+        if (key === 'auditor') borderClass = 'border-red-200';
+        if (key === 'month') borderClass = 'border-blue-200';
+        
+        let html = `
+            <div class="form-select flex justify-between items-center cursor-pointer bg-white ${borderClass}" onclick="toggleMultiSelect('${containerId}-dropdown')">
+                <span id="${containerId}-text" class="truncate text-gray-600 w-[calc(100%-20px)] text-left font-normal">ทั้งหมด</span>
+                <i class="fa-solid fa-chevron-down text-gray-400 text-[10px]"></i>
+            </div>
+            <div id="${containerId}-dropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-2xl hidden max-h-60 overflow-y-auto">
+                <label class="flex items-center px-3 py-2.5 hover:bg-gray-50 cursor-pointer border-b border-gray-200 text-sm transition-colors">
+                    <input type="checkbox" value="All" class="mr-2 checkbox-item filter-cb-${key}" onchange="handleFilterChange('${key}', 'All')" checked>
+                    <span class="font-bold text-gray-800">ทั้งหมด</span>
+                </label>`;
+        arr.forEach(val => {
+            html += `
+                <label class="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm transition-colors border-b border-gray-50 last:border-0">
+                    <input type="checkbox" value="${val}" class="mr-2 checkbox-item filter-cb-${key}" onchange="handleFilterChange('${key}', '${val}')">
+                    <span class="text-gray-600 truncate" title="${val}">${val}</span>
+                </label>`;
+        });
+        html += `</div>`;
+        container.innerHTML = html;
+    }
+
+    function initFilters() {
+      const sheets = [...new Set(rawData.map(d => d.originSheet))].sort();
+      const companies = [...new Set(rawData.map(d => d.company).filter(Boolean))].sort(); 
+      const locs = [...new Set(rawData.map(d => d.location).filter(Boolean))].sort();
+      const affs = [...new Set(rawData.map(d => d.affiliation).filter(Boolean))].sort();
+      
+      const auditorSet = new Set();
+      rawData.forEach(d => {
+        if(d.r1_auditor) auditorSet.add(d.r1_auditor);
+        if(d.r2_auditor) auditorSet.add(d.r2_auditor);
+        if(d.r3_auditor) auditorSet.add(d.r3_auditor);
+      });
+      const auditors = [...auditorSet].sort();
+      const monthNamesArr = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+
+      buildMultiSelectHTML('filterContainerCompany', 'company', companies); 
+      buildMultiSelectHTML('filterContainerSheet', 'sheet', sheets); 
+      buildMultiSelectHTML('filterContainerLocation', 'location', locs); 
+      buildMultiSelectHTML('filterContainerAffiliation', 'affiliation', affs);
+      buildMultiSelectHTML('filterContainerAuditor', 'auditor', auditors);
+      buildMultiSelectHTML('filterContainerMonth', 'month', monthNamesArr); 
+    }
+
+    function handleFilterChange(filterKey, changedValue) {
+        const checkboxes = Array.from(document.querySelectorAll(`.filter-cb-${filterKey}`));
+        const allCb = checkboxes.find(cb => cb.value === 'All');
+        const otherCbs = checkboxes.filter(cb => cb.value !== 'All');
+
+        if (changedValue === 'All') {
+            if (allCb.checked) otherCbs.forEach(cb => cb.checked = false);
+            else allCb.checked = true; 
+        } else {
+            if (allCb.checked) allCb.checked = false; 
+            const anyChecked = otherCbs.some(cb => cb.checked);
+            if (!anyChecked) allCb.checked = true; 
+        }
+        updateFilterText(filterKey); applyFilters(); 
+    }
+
+    function updateFilterText(filterKey) {
+        const checkboxes = Array.from(document.querySelectorAll(`.filter-cb-${filterKey}`));
+        const selected = checkboxes.filter(cb => cb.checked).map(cb => cb.value);
+        const capitalizedKey = filterKey.charAt(0).toUpperCase() + filterKey.slice(1);
+        const textEl = document.getElementById(`filterContainer${capitalizedKey}-text`);
+        
+        let activeColorClass = 'text-siamgas-red';
+        if (filterKey === 'month') activeColorClass = 'text-blue-600'; 
+
+        if (selected.includes('All')) {
+            textEl.innerText = 'ทั้งหมด';
+            textEl.classList.remove(activeColorClass, 'font-bold', 'text-siamgas-red', 'text-blue-600');
+            textEl.classList.add('text-gray-600', 'font-normal');
+        } else if (selected.length === 1) {
+            textEl.innerText = selected[0];
+            textEl.classList.remove('text-gray-600', 'font-normal');
+            textEl.classList.add(activeColorClass, 'font-bold');
+        } else {
+            textEl.innerText = `เลือก ${selected.length} รายการ`;
+            textEl.classList.remove('text-gray-600', 'font-normal');
+            textEl.classList.add(activeColorClass, 'font-bold');
+        }
+    }
+
+    function getSelectedValues(filterKey) {
+        const checkboxes = document.querySelectorAll(`.filter-cb-${filterKey}`);
+        return Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+    }
+
+    function applyFilters() {
+      const fComp = getSelectedValues('company'); 
+      const fSheet = getSelectedValues('sheet');
+      const fLoc = getSelectedValues('location');
+      const fAff = getSelectedValues('affiliation');
+      const fAud = getSelectedValues('auditor');
+      const fMonth = getSelectedValues('month');
+
+      const monthNames = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+      const getMonthName = (dateStr) => {
+          if (!dateStr || String(dateStr).trim() === '') return null;
+          let str = String(dateStr).trim().split(' ')[0]; 
+          let mIndex = -1;
+          if (str.includes('/')) mIndex = parseInt(str.split('/')[1], 10) - 1;
+          if (str.includes('-')) mIndex = parseInt(str.split('-')[1], 10) - 1;
+          return mIndex >= 0 && mIndex <= 11 ? monthNames[mIndex] : null;
+      };
+
+      const filtered = rawData.filter(d => {
+        const matchComp = fComp.includes('All') || fComp.includes(d.company); 
+        const matchSheet = fSheet.includes('All') || fSheet.includes(d.originSheet);
+        const matchLoc = fLoc.includes('All') || fLoc.includes(d.location);
+        const matchAff = fAff.includes('All') || fAff.includes(d.affiliation);
+        const matchAud = fAud.includes('All') || fAud.includes(d.r1_auditor) || fAud.includes(d.r2_auditor) || fAud.includes(d.r3_auditor);
+
+        let matchMonth = false;
+        if (fMonth.includes('All')) { matchMonth = true; } 
+        else {
+            const m1 = getMonthName(d.r1_start), m2 = getMonthName(d.r2_start), m3 = getMonthName(d.r3_start);
+            if ((m1 && fMonth.includes(m1)) || (m2 && fMonth.includes(m2)) || (m3 && fMonth.includes(m3))) matchMonth = true;
+        }
+        return matchComp && matchSheet && matchLoc && matchAff && matchAud && matchMonth;
+      });
+
+      currentFilteredData = filtered; 
+      const stats = calculateStats(filtered);
+      renderAuditorSummary(filtered);
+      renderMonthlySummary(filtered, stats.totalScope);
+      renderTimeline(filtered);
+      renderCharts(filtered, fSheet, fLoc, fAff);
+      renderTable(filtered);
+    }
+
+    function calculateStats(data) {
+      let totalScope = 0, totalDone = 0, scopePlan = 0, scopeAdHoc = 0;
+      data.forEach(d => {
+        if(d.isAdHoc) {
+          if(d.hasContent) { totalScope++; scopeAdHoc++; if(d.r1_check || d.r2_check || d.r3_check) totalDone++; }
+        } else {
+          const p = d.freq;
+          if(p>=1){ totalScope++; scopePlan++; if(d.r1_check) totalDone++; }
+          if(p>=2){ totalScope++; scopePlan++; if(d.r2_check) totalDone++; }
+          if(p>=3){ totalScope++; scopePlan++; if(d.r3_check) totalDone++; }
+        }
+      });
+      document.getElementById('kpiTotal').innerText = totalScope;
+      document.getElementById('kpiPlan').innerText = scopePlan;
+      document.getElementById('kpiAdhoc').innerText = scopeAdHoc;
+      document.getElementById('kpiDone').innerText = totalDone;
+      document.getElementById('kpiPending').innerText = totalScope - totalDone;
+      document.getElementById('kpiProgress').innerText = totalScope ? Math.round((totalDone/totalScope)*100)+'%' : '0%';
+      document.getElementById('recordCount').innerText = `${data.length} records`;
+      return { totalScope, totalDone };
+    }
+
+    function renderAuditorSummary(data) {
+        const counts = {};
+        data.forEach(d => { [d.r1_auditor, d.r2_auditor, d.r3_auditor].forEach(aud => { if(aud && String(aud).trim() !== '') counts[aud] = (counts[aud] || 0) + 1; }); });
+        const container = document.getElementById('auditorList');
+        const section = document.getElementById('auditorSummarySection');
+        if (Object.keys(counts).length > 0) {
+            section.classList.remove('hidden');
+            let html = '';
+            Object.entries(counts).sort((a,b) => b[1]-a[1]).forEach(([name, count]) => { html += `<span class="auditor-item"><i class="fa-solid fa-user mr-1"></i> ${name} (${count})</span>`; });
+            container.innerHTML = html;
+        } else { section.classList.add('hidden'); }
+    }
+
+    function renderMonthlySummary(data, globalScope) {
+      const monthMap = {};
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      
+      data.forEach(d => {
+        const dates = [];
+        if(d.freq>=1 || d.isAdHoc) dates.push({d: d.r1_start, loc: d.location, aff: d.affiliation, isAdHoc: d.isAdHoc, isDone: d.r1_check});
+        if(!d.isAdHoc && d.freq>=2) dates.push({d: d.r2_start, loc: d.location, aff: d.affiliation, isAdHoc: false, isDone: d.r2_check});
+        if(!d.isAdHoc && d.freq>=3) dates.push({d: d.r3_start, loc: d.location, aff: d.affiliation, isAdHoc: false, isDone: d.r3_check});
+
+        dates.forEach(item => {
+          if(item.d && String(item.d).includes('/')) {
+             const mIndex = parseInt(String(item.d).split('/')[1]) - 1; 
+             if(mIndex >= 0 && mIndex <= 11) {
+               if(!monthMap[mIndex]) monthMap[mIndex] = { planned: [], adhoc: [] };
+               if(item.isAdHoc) monthMap[mIndex].adhoc.push(item);
+               else monthMap[mIndex].planned.push(item);
+             }
+          }
+        });
+      });
+
+      const container = document.getElementById('monthlySummaryContainer');
+      container.innerHTML = '';
+      const getStatusIcon = (isDone) => isDone ? `<i class="fa-solid fa-circle-check text-green-500 mr-1.5 mt-0.5" title="Completed"></i>` : `<i class="fa-regular fa-circle text-gray-300 mr-1.5 mt-0.5" title="Pending"></i>`;
+
+      let cumulativeDone = 0; 
+      const fMonth = getSelectedValues('month');
+      const thMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+
+      months.forEach((m, idx) => {
+        if (!fMonth.includes('All') && !fMonth.includes(thMonths[idx])) return;
+        const monthData = monthMap[idx];
+        if(monthData && (monthData.planned.length > 0 || monthData.adhoc.length > 0)) {
+           let doneMonth = 0; let contentHtml = '';
+           
+           if(monthData.planned.length > 0) {
+               contentHtml += `<div class="month-section-title text-siamgas-red">Plan (${monthData.planned.length})</div>`;
+               monthData.planned.forEach(j => {
+                   if(j.isDone) doneMonth++;
+                   contentHtml += `<div class="month-item"><div class="month-item-loc flex items-start">${getStatusIcon(j.isDone)} <span class="flex-1">${j.loc}</span></div><span class="month-item-sys ml-5">${j.aff}</span></div>`;
+               });
+           }
+           if(monthData.adhoc.length > 0) {
+               contentHtml += `<div class="month-section-title text-siamgas-dark mt-2">Extra (${monthData.adhoc.length})</div>`;
+               monthData.adhoc.forEach(j => {
+                   if(j.isDone) doneMonth++;
+                   contentHtml += `<div class="month-item adhoc"><div class="month-item-loc flex items-start">${getStatusIcon(j.isDone)} <span class="flex-1">${j.loc}</span></div><span class="month-item-sys ml-5">${j.aff}</span></div>`;
+               });
+           }
+           const totalMonth = monthData.planned.length + monthData.adhoc.length;
+           const remainingScope = globalScope - cumulativeDone;
+           const percentOfRemaining = remainingScope <= 0 ? 0 : Math.round((doneMonth / remainingScope) * 100);
+           
+           let pbColor = 'bg-siamgas-red';
+           if (doneMonth === totalMonth && totalMonth > 0) pbColor = 'bg-green-500';
+           else if (doneMonth === 0) pbColor = 'bg-gray-300';
+
+           const card = document.createElement('div');
+           card.className = 'month-card';
+           card.innerHTML = `
+             <div class="month-header">
+                 <div class="flex justify-between w-full items-center mb-1.5">
+                    <span class="text-siamgas-dark font-bold text-lg">${m}</span>
+                    <span class="month-count">${doneMonth}/${totalMonth} งาน</span>
+                </div>
+                <div class="w-full flex items-center gap-2 mb-1">
+                    <div class="w-full bg-gray-200 rounded-full h-1.5"><div class="${pbColor} h-1.5 rounded-full transition-all duration-500" style="width: ${percentOfRemaining}%"></div></div>
+                    <span class="text-[10px] font-bold text-siamgas-red w-7 text-right">${percentOfRemaining}%</span>
+                </div>
+                <div class="text-[9px] text-siamgas-gray w-full text-right leading-none">(คิดจากฐานงานที่เหลือ ${remainingScope} งาน)</div>
+             </div><div class="month-body">${contentHtml}</div>`;
+           container.appendChild(card);
+           cumulativeDone += doneMonth;
+        }
+      });
+      if(container.innerHTML === '') container.innerHTML = '<div class="p-4 text-siamgas-gray w-full text-center italic">No Start Dates Found in Selection</div>';
+    }
+
+    function renderTimeline(data) {
+      const tbody = document.getElementById('timelineBody');
+      tbody.innerHTML = '';
+      function getMonthIdx(dateStr) {
+        if (!dateStr || String(dateStr).trim() === '') return -1;
+        let str = String(dateStr).trim().split(' ')[0]; 
+        if (str.includes('/')) return parseInt(str.split('/')[1], 10) - 1;
+        if (str.includes('-')) return parseInt(str.split('-')[1], 10) - 1;
+        return -1;
+      }
+
+      data.forEach((item, index) => {
+        if (item.isAdHoc && !item.hasContent) return;
+        let r1_s = getMonthIdx(item.r1_start); let r1_e = getMonthIdx(item.r1_end) !== -1 ? getMonthIdx(item.r1_end) : r1_s;
+        let r2_s = getMonthIdx(item.r2_start); let r2_e = getMonthIdx(item.r2_end) !== -1 ? getMonthIdx(item.r2_end) : r2_s;
+        let r3_s = getMonthIdx(item.r3_start); let r3_e = getMonthIdx(item.r3_end) !== -1 ? getMonthIdx(item.r3_end) : r3_s;
+
+        const tr = document.createElement('tr');
+        tr.className = index % 2 === 0 ? 'bg-white hover:bg-gray-50' : 'bg-gray-50 hover:bg-gray-100';
+        let compHTML = item.company ? `<span class="bg-gray-200 text-gray-700 text-[10px] px-1.5 py-0.5 rounded ml-1">${item.company}</span>` : '';
+        let nameHTML = `<td class="px-4 py-2 border border-gray-200 font-medium text-siamgas-dark text-xs max-w-[250px] truncate">${item.location} ${compHTML} <br><span class="text-siamgas-gray font-normal">${item.affiliation}</span></td>`;
+        
+        let monthsHTML = '';
+        for (let i = 0; i < 12; i++) {
+          let cell = '';
+          let inR1 = (r1_s !== -1 && i >= r1_s && i <= r1_e), inR2 = (r2_s !== -1 && i >= r2_s && i <= r2_e), inR3 = (r3_s !== -1 && i >= r3_s && i <= r3_e);
+          let isEndR1 = (r1_e !== -1 && i === r1_e), isEndR2 = (r2_e !== -1 && i === r2_e), isEndR3 = (r3_e !== -1 && i === r3_e);
+
+          if (inR1 || inR2 || inR3) {
+            let isEnd = isEndR1 || isEndR2 || isEndR3;
+            let check1 = (item.r1_check === true || String(item.r1_check).toUpperCase() === 'TRUE');
+            let check2 = (item.r2_check === true || String(item.r2_check).toUpperCase() === 'TRUE');
+            let check3 = (item.r3_check === true || String(item.r3_check).toUpperCase() === 'TRUE');
+            let isDone = (inR1 && check1) || (inR2 && check2) || (inR3 && check3);
+            let lineColor = isDone ? 'border-green-500' : 'border-siamgas-red';
+            let arrowColor = isDone ? 'text-green-500' : 'text-siamgas-red';
+
+            if (isEnd) cell = `<div class="flex items-center w-full h-full relative px-1"><div class="w-full border-t-2 border-dashed ${lineColor}"></div><i class="fa-solid fa-caret-right ${arrowColor} text-sm absolute -right-1 z-10 bg-transparent"></i></div>`;
+            else cell = `<div class="flex items-center w-full h-full"><div class="w-full border-t-2 border-dashed ${lineColor} scale-x-110"></div></div>`;
+          }
+          monthsHTML += `<td class="p-0 border border-gray-200 h-10 text-center relative">${cell}</td>`;
+        }
+        tr.innerHTML = nameHTML + monthsHTML;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderCharts(data, fSheet, fLoc, fAff) {
+      let groupBy = 'originSheet';
+      const fSheetVal = getSelectedValues('sheet'), fLocVal = getSelectedValues('location');
+      if (!fSheetVal.includes('All') && fSheetVal.length === 1) groupBy = 'location';
+      if (!fLocVal.includes('All') && fLocVal.length === 1) groupBy = 'affiliation';
+
+      const counts = {}; let done = 0, pending = 0;
+      data.forEach(d => {
+        if(d.isAdHoc && !d.hasContent) return;
+        const key = d[groupBy] || 'Unknown';
+        if(!counts[key]) counts[key] = 0;
+        if(d.isAdHoc) { if(d.r1_check || d.r2_check || d.r3_check) { counts[key]++; done++; } else pending++; } 
+        else {
+           const p = d.freq;
+           if(p>=1){ if(d.r1_check) {counts[key]++; done++;} else pending++; }
+           if(p>=2){ if(d.r2_check) {counts[key]++; done++;} else pending++; }
+           if(p>=3){ if(d.r3_check) {counts[key]++; done++;} else pending++; }
+        }
+      });
+
+      if (barChart) barChart.destroy();
+      barChart = new Chart(document.getElementById('barChart'), { type: 'bar', data: { labels: Object.keys(counts), datasets: [{ label: 'Done', data: Object.values(counts), backgroundColor: '#10B981', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: {legend:{display:false}}, scales: { y: { grid: { color: '#E0E0E0' } }, x: { grid: { display: false } } } } });
+
+      if (doughnutChart) doughnutChart.destroy();
+      doughnutChart = new Chart(document.getElementById('doughnutChart'), { type: 'doughnut', data: { labels: ['Done', 'Pending'], datasets: [{ data: [done, pending], backgroundColor: ['#10B981', '#E31E24'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, color: '#333333' } } } } });
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
+      const badge = (ok, req) => !req ? `<span class="badge-na">N/A</span>` : ok ? `<span class="badge-true">✓ True</span>` : `<span class="badge-false">False</span>`;
+
+      data.forEach(item => {
+        let freqTxt = item.isAdHoc ? "AdHoc" : item.freq;
+        let r1=item.freq>=1, r2=item.freq>=2, r3=item.freq>=3;
+        if(item.isAdHoc) { r1=true; r2=false; r3=false; }
+        let descHTML = item.description ? `<div class="text-xs text-siamgas-gray mt-1">(${item.description})</div>` : '';
+        let compHTML = item.company ? `<span class="bg-gray-200 text-gray-700 text-[10px] px-1.5 py-0.5 rounded ml-2">${item.company}</span>` : '';
+
+        const tr = document.createElement('tr'); tr.className = 'bg-white border-b border-gray-200 hover:bg-gray-50';
+        tr.innerHTML = `
+          <td class="px-6 py-4"><div class="font-bold text-siamgas-dark">${item.location} ${compHTML}</div><div class="text-xs text-siamgas-gray">${item.originSheet} • ${item.affiliation}</div>${descHTML}</td>
+          <td class="px-6 py-4 text-center text-xs font-bold text-siamgas-gray">${freqTxt}</td>
+          <td class="px-6 py-4 text-center">${badge(item.r1_check, r1)}</td><td class="px-6 py-4 text-center">${badge(item.r2_check, r2)}</td><td class="px-6 py-4 text-center">${badge(item.r3_check, r3)}</td>
+          <td class="px-6 py-4 text-right"><button onclick='openModal(${JSON.stringify(item)})' class="text-siamgas-red bg-red-50 px-3 py-1 rounded text-xs font-bold hover:bg-red-100">Edit</button></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openModal(item) {
+      document.getElementById('originSheet').value = item.originSheet; document.getElementById('rowIndex').value = item.rowIndex;
+      document.getElementById('r1_check').checked = item.r1_check; document.getElementById('r2_check').checked = item.r2_check; document.getElementById('r3_check').checked = item.r3_check;
+      document.getElementById('r1_start').value = toInputDate(item.r1_start); document.getElementById('r1_end').value = toInputDate(item.r1_end); document.getElementById('r1_auditor').value = item.r1_auditor;
+      document.getElementById('r2_start').value = toInputDate(item.r2_start); document.getElementById('r2_end').value = toInputDate(item.r2_end); document.getElementById('r2_auditor').value = item.r2_auditor;
+      document.getElementById('r3_start').value = toInputDate(item.r3_start); document.getElementById('r3_end').value = toInputDate(item.r3_end); document.getElementById('r3_auditor').value = item.r3_auditor;
+      const f = item.isAdHoc ? 1 : item.freq;
+      const toggle = (id, active) => { const el = document.getElementById(id); if(active) el.classList.remove('opacity-40','pointer-events-none'); else el.classList.add('opacity-40','pointer-events-none'); };
+      toggle('block_r1', f>=1); toggle('block_r2', f>=2); toggle('block_r3', f>=3);
+      document.getElementById('editModal').classList.remove('hidden'); document.getElementById('editModal').classList.add('flex');
+    }
+    function closeModal() { document.getElementById('editModal').classList.add('hidden'); document.getElementById('editModal').classList.remove('flex'); }
+
+    function exportExcel() {
+      if (currentFilteredData.length === 0) { Swal.fire('No Data', 'ไม่มีข้อมูลสำหรับ Export', 'warning'); return; }
+      const exportData = currentFilteredData.map(d => ({ 'Company': d.company || '', 'สถานที่': d.location, 'สังกัด': d.affiliation, 'รายละเอียดงาน': d.description || '', 'Sheet อ้างอิง': d.originSheet, 'จำนวนครั้ง/ปี': d.isAdHoc ? 'AdHoc' : d.freq, 'R1 สถานะ': d.r1_check ? 'เสร็จสิ้น' : 'รอดำเนินการ', 'R1 เริ่ม': d.r1_start, 'R1 เสร็จ': d.r1_end, 'R1 ผู้ตรวจ': d.r1_auditor, 'R2 สถานะ': d.r2_check ? 'เสร็จสิ้น' : 'รอดำเนินการ', 'R2 เริ่ม': d.r2_start, 'R2 เสร็จ': d.r2_end, 'R2 ผู้ตรวจ': d.r2_auditor, 'R3 สถานะ': d.r3_check ? 'เสร็จสิ้น' : 'รอดำเนินการ', 'R3 เริ่ม': d.r3_start, 'R3 เสร็จ': d.r3_end, 'R3 ผู้ตรวจ': d.r3_auditor }));
+      const ws = XLSX.utils.json_to_sheet(exportData); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "AuditPlan"); XLSX.writeFile(wb, "Audit_Plan_2027.xlsx");
+    }
+
+    function exportPDF() {
+      const isDashboard = !document.getElementById('view-dashboard').classList.contains('hidden');
+      Swal.fire({title: 'Generating PDF...', text: 'กำลังเตรียมไฟล์ กรุณารอสักครู่', didOpen: () => Swal.showLoading()});
+      const elementId = isDashboard ? 'view-dashboard' : 'timelineContainer'; const element = document.getElementById(elementId);
+      const addJobSec = document.getElementById('addJobSection'); if (addJobSec && isDashboard) addJobSec.style.display = 'none';
+      let scrollWrapper = null;
+      if (!isDashboard) { scrollWrapper = document.getElementById('timelineTableWrapper'); if (scrollWrapper) { scrollWrapper.classList.remove('overflow-x-auto'); scrollWrapper.style.overflow = 'visible'; } }
+      const opt = { margin: [10, 10, 10, 10], filename: isDashboard ? 'Audit_Dashboard.pdf' : 'Audit_Timeline.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape' } };
+      html2pdf().set(opt).from(element).save().then(() => {
+        if (addJobSec && isDashboard) addJobSec.style.display = 'block';
+        if (!isDashboard && scrollWrapper) { scrollWrapper.classList.add('overflow-x-auto'); scrollWrapper.style.overflow = ''; }
+        Swal.close();
+      });
+    }
+  </script>
+</body>
+</html>

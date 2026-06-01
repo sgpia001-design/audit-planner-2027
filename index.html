@@ -1,1 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2027 Audit Planner</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#E31E24">
 
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            siamgas: { red: '#E31E24', dark: '#333333', gray: '#666666', light: '#F5F5F5', green: '#10B981' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: 'Kanit', sans-serif; background-color: #F5F5F5; color: #333333; }
+    .insta-card { background: white; border: 1px solid #E0E0E0; border-radius: 12px; padding: 24px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); margin-bottom: 24px; }
+    .btn-primary { background-color: #E31E24; color: white; border-radius: 8px; padding: 8px 20px; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+    .btn-primary:hover { background-color: #C21A1F; transform: translateY(-1px); }
+    .form-input { background: #fff; border: 1px solid #E0E0E0; border-radius: 8px; padding: 9px 12px; width: 100%; font-size: 14px; outline: none; color: #333333; }
+    .form-input:focus { border-color: #E31E24; }
+    .form-select { background: #fff; border: 1px solid #E0E0E0; border-radius: 8px; padding: 9px 12px; width: 100%; font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .form-select:hover { border-color: #b3b3b3; }
+    .checkbox-item { width: 16px; height: 16px; accent-color: #E31E24; cursor: pointer; }
+    .toggle-checkbox { appearance: none; width: 44px; height: 24px; background: #E0E0E0; border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s; }
+    .toggle-checkbox:checked { background: #E31E24; }
+    .toggle-checkbox::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle-checkbox:checked::after { transform: translateX(20px); }
+    .badge-true { background-color: #DEF7EC; color: #03543F; border: 1px solid #84E1BC; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+    .badge-false { background-color: #FDE8E8; color: #9B1C1C; border: 1px solid #F8B4B4; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+    .badge-na { background-color: #F3F4F6; color: #6B7280; padding: 3px 10px; border-radius: 4px; font-size: 12px; }
+    .month-container { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: thin; }
+    .month-card { min-width: 280px; max-width: 280px; background: #fff; border: 1px solid #E0E0E0; border-radius: 10px; display: flex; flex-direction: column; flex-shrink: 0; transition: 0.2s; }
+    .month-card:hover { border-color: #E31E24; box-shadow: 0 4px 12px rgba(227, 30, 36, 0.1); }
+    .month-header { background: #FAFAFA; padding: 12px 15px 10px 15px; border-radius: 10px 10px 0 0; border-bottom: 1px solid #E0E0E0; display: flex; flex-direction: column; }
+    .month-count { background: #FCE8E8; color: #C21A1F; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight:bold; }
+    .month-body { padding: 10px; max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .month-section-title { font-size: 11px; font-weight: 700; color: #666666; text-transform: uppercase; margin-top: 5px; margin-bottom: 2px; }
+    .month-item { background: #fff; border-left: 3px solid #E31E24; padding: 6px 10px; border-radius: 0 4px 4px 0; background-color: #FEF2F2; }
+    .month-item.adhoc { border-left-color: #666666; background-color: #F3F4F6; }
+    .month-item-loc { font-size: 13px; font-weight: 500; color: #333333; }
+    .month-item-sys { font-size: 11px; color: #666666; display: block; }
+    .auditor-box { background: #FAFAFA; border: 1px solid #E0E0E0; border-radius: 8px; padding: 10px; margin-top: 15px; }
+    .auditor-item { display: inline-block; background: white; padding: 4px 10px; border-radius: 15px; font-size: 12px; margin: 3px; border: 1px solid #E0E0E0; color: #333333; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #CCCCCC; border-radius: 3px; }
+    .timeline-table th { background-color: #F5F5F5; color: #333333; font-weight: 600; text-align: center; border-color: #E0E0E0; }
+    .timeline-table td { border-color: #E0E0E0; }
+    .tab-btn { padding: 12px 24px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-top: 2px solid transparent; transition: all 0.2s; color: #666666; }
+    .tab-btn:hover { color: #E31E24; }
+    .tab-btn.active { color: #E31E24; border-top-color: #E31E24; background-color: #FEF2F2; }
+  </style>
+</head>
+<body class="p-4 md:p-8 max-w-7xl mx-auto pb-24">
+
+  <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+    <div class="flex items-center gap-4">
+      <div class="w-12 h-12 bg-gradient-to-tr from-red-400 via-red-500 to-red-700 rounded-full p-[3px] shadow-sm">
+        <div class="bg-white w-full h-full rounded-full flex items-center justify-center">
+          <i class="fa-solid fa-chart-line text-xl text-siamgas-red"></i>
+        </div>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold text-siamgas-dark">2027 Audit Planner (PWA)</h1>
+        <p class="text-sm text-siamgas-gray">Analytic Dashboard</p>
+      </div>
+    </div>
+    <div class="flex flex-wrap gap-3 mt-4 md:mt-0">
+      <button onclick="exportExcel()" class="bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+      <button onclick="exportPDF()" class="bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+      <button onclick="fetchData()" class="bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200 px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors"><i class="fa-solid fa-rotate"></i> Refresh</button>
+    </div>
+  </div>
+
+  <div class="insta-card sticky top-0 z-30 border-t-4 border-t-siamgas-red">
+    <h3 class="text-xs font-bold text-siamgas-gray uppercase mb-3">FILTERS & SELECTION <span class="font-normal normal-case text-[10px] ml-1 text-gray-400">(สามารถเลือกได้มากกว่า 1 ตัวเลือก)</span></h3>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 relative">
+      <div>
+        <label class="text-xs font-bold text-siamgas-dark block mb-1">Company</label>
+        <div id="filterContainerCompany" class="relative"></div>
+      </div>
+      <div>
+        <label class="text-xs font-bold text-siamgas-dark block mb-1">Sheet</label>
+        <div id="filterContainerSheet" class="relative"></div>
+      </div>
+      <div>
+        <label class="text-xs font-bold text-siamgas-dark block mb-1">Location</label>
+        <div id="filterContainerLocation" class="relative"></div>
+      </div>
+      <div>
+        <label class="text-xs font-bold text-siamgas-dark block mb-1">Affiliation</label>
+        <div id="filterContainerAffiliation" class="relative"></div>
+      </div>
+      <div>
+        <label class="text-xs font-bold text-siamgas-red block mb-1"><i class="fa-solid fa-user-check mr-1"></i> Auditor</label>
+        <div id="filterContainerAuditor" class="relative"></div>
+      </div>
+      <div>
+        <label class="text-xs font-bold text-blue-600 block mb-1"><i class="fa-regular fa-calendar-alt mr-1"></i> Month</label>
+        <div id="filterContainerMonth" class="relative"></div>
+      </div>
+    </div>
+    
+    <div id="auditorSummarySection" class="auditor-box hidden mt-4">
+        <div class="text-xs font-bold text-siamgas-dark flex justify-between items-center cursor-pointer hover:text-siamgas-red transition-colors" onclick="toggleAuditorSummary()">
+            <span><i class="fa-solid fa-list-check mr-1"></i> Auditor Summary (Work Count)</span>
+            <div class="bg-gray-200 hover:bg-red-100 p-1 rounded w-6 h-6 flex items-center justify-center transition-colors">
+                <i id="auditorToggleIcon" class="fa-solid fa-chevron-up text-gray-600"></i>
+            </div>
+        </div>
+        <div id="auditorList" class="flex flex-wrap mt-2"></div>
+    </div>
+  </div>
+
+  <div class="flex justify-center border-t border-gray-200 mb-6 bg-white rounded-lg shadow-sm">
+    <button id="tabBtn-dashboard" onclick="switchTab('dashboard')" class="tab-btn active flex-1 rounded-l-lg"><i class="fa-solid fa-table-cells mr-2"></i> Dashboard</button>
+    <button id="tabBtn-timeline" onclick="switchTab('timeline')" class="tab-btn flex-1 rounded-r-lg"><i class="fa-solid fa-bars-staggered mr-2"></i> Timeline (ลูกศร)</button>
+  </div>
+
+  <div id="view-dashboard">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div class="md:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white border border-gray-200 rounded-xl p-4 text-center flex flex-col justify-center relative overflow-hidden">
+              <div class="text-xs text-siamgas-gray font-bold">Total Scope</div>
+              <div id="kpiTotal" class="text-3xl font-bold text-siamgas-dark my-1">-</div>
+              <div class="flex justify-center gap-1 mt-1">
+                  <span class="bg-red-50 text-siamgas-red text-[10px] px-2 py-0.5 rounded border border-red-100">ตามแผน: <span id="kpiPlan" class="font-bold">0</span></span>
+                  <span class="bg-gray-100 text-siamgas-dark text-[10px] px-2 py-0.5 rounded border border-gray-200">Ad-hoc: <span id="kpiAdhoc" class="font-bold">0</span></span>
+              </div>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-xl p-4 text-center flex flex-col justify-center">
+              <div class="text-xs text-siamgas-gray font-bold">Completed</div>
+              <div id="kpiDone" class="text-3xl font-bold text-green-600">-</div>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-xl p-4 text-center flex flex-col justify-center">
+              <div class="text-xs text-siamgas-gray font-bold">Pending</div>
+              <div id="kpiPending" class="text-3xl font-bold text-siamgas-red">-</div>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-xl p-4 text-center flex flex-col justify-center">
+              <div class="text-xs text-siamgas-gray font-bold">Progress</div>
+              <div id="kpiProgress" class="text-3xl font-bold text-siamgas-red">0%</div>
+            </div>
+        </div>
+
+        <div class="insta-card md:col-span-3 mb-0">
+          <h3 class="font-bold text-siamgas-dark mb-4">Performance Overview</h3>
+          <div class="h-64 w-full"><canvas id="barChart"></canvas></div>
+        </div>
+        <div class="insta-card mb-0">
+          <h3 class="font-bold text-siamgas-dark mb-4 text-center">Status Ratio</h3>
+          <div class="h-64 w-full flex justify-center"><canvas id="doughnutChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="insta-card">
+        <h3 class="font-bold text-siamgas-dark mb-4 flex items-center gap-2"><i class="fa-regular fa-calendar-alt text-siamgas-red"></i> สรุปแผนงานประจำเดือน</h3>
+        <div class="month-container" id="monthlySummaryContainer"></div>
+      </div>
+
+      <div class="insta-card p-0 overflow-hidden mb-8">
+        <div class="bg-gray-50 border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+          <h3 class="font-bold text-siamgas-dark">Detailed Task List</h3>
+          <span class="text-xs text-siamgas-gray bg-white border border-gray-200 px-2 py-1 rounded" id="recordCount">0 records</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left text-siamgas-gray">
+            <thead class="text-xs text-siamgas-dark uppercase bg-gray-100 border-b border-gray-200">
+              <tr>
+                <th class="px-6 py-4">Location / Details</th>
+                <th class="px-6 py-4 text-center">Freq</th>
+                <th class="px-6 py-4 text-center">R1</th>
+                <th class="px-6 py-4 text-center">R2</th>
+                <th class="px-6 py-4 text-center">R3</th>
+                <th class="px-6 py-4 text-right">Edit</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody" class="divide-y divide-gray-200"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="addJobSection" class="insta-card border-t-4 border-t-siamgas-red bg-red-50/30">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="bg-red-100 p-2 rounded-full text-siamgas-red"><i class="fa-solid fa-plus"></i></div>
+          <h3 class="font-bold text-lg text-siamgas-dark">Add New Job</h3>
+        </div>
+        <form id="addJobForm" onsubmit="submitNewJob(event)">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div><label class="text-xs font-bold text-siamgas-dark block mb-1">Location</label><input type="text" name="new_location" required class="form-input" placeholder="สถานที่..."></div>
+            <div><label class="text-xs font-bold text-siamgas-dark block mb-1">Affiliation</label><input type="text" name="new_affiliation" required class="form-input" placeholder="สังกัด..."></div>
+            <div><label class="text-xs font-bold text-siamgas-dark block mb-1">Description (รายละเอียด)</label><input type="text" name="new_description" class="form-input" placeholder="รายละเอียดงาน..."></div>
+          </div>
+          <div class="bg-white border border-red-100 p-4 rounded-xl mb-4">
+            <div class="flex justify-between mb-3 border-b border-red-50 pb-2">
+              <h4 class="text-sm font-bold text-siamgas-red">รายละเอียด Round 1 (ล็อครอบเดียว)</h4>
+              <div class="flex gap-2 items-center"><span class="text-xs font-
